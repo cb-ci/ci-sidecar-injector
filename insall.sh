@@ -8,8 +8,8 @@ NAMESPACE=cloudbees-core
 kubectl api-versions | grep admissionregistration.k8s.io/v1
 
 #copy certs
-kubectl cp cjoc-0:etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem ./ca-certificates.crt
-kubectl cp cjoc-0:etc/pki/ca-trust/extracted/java/cacerts ./cacerts
+kubectl cp -n $NAMESPACE  cjoc-0:etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem ./ca-certificates.crt
+kubectl cp -n $NAMESPACE  cjoc-0:etc/pki/ca-trust/extracted/java/cacerts ./cacerts
 
 #Add root CA to system certificate bundle:
 #cat mycertificate.pem >> ca-certificates.crt
@@ -31,5 +31,18 @@ kubectl --namespace cloudbees-sidecar-injector get all
 kubectl label namespace $NAMESPACE sidecar-injector=enabled
 
 kubectl get namespace -L sidecar-injector
-kubectl apply -f testpod.yaml -n $NAMESPACE
+#kubectl apply -f testpod.yaml -n $NAMESPACE
+
+kubectl -n $NAMESPACE apply -f  - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+spec:
+  containers:
+    - name: example-container
+      image: busybox
+      command: ["/bin/sh", "-c", "sleep 3600"]
+EOF
+
 kubectl describe pod example-pod  -n $NAMESPACE |grep -o  /etc/ssl/ca-bundle.pem
