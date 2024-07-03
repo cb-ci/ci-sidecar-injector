@@ -21,6 +21,7 @@ kubectl create configmap --from-file=ca-certificates.crt,cacerts ca-bundles -n $
 
 kubectl create namespace cloudbees-sidecar-injector
 helm repo update
+#helm fetch cloudbees/cloudbees-sidecar-injector --untar
 helm upgrade -i cloudbees-sidecar-injector cloudbees/cloudbees-sidecar-injector --namespace cloudbees-sidecar-injector
 kubectl --namespace cloudbees-sidecar-injector get all
 
