@@ -1,9 +1,8 @@
 #! /bin/bash
 
-
-NAMESPACE=cloudbees-core
 #see https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-admin-guide/kubernetes-self-signed-certificates
 
+NAMESPACE=cloudbees-core
 
 kubectl api-versions | grep admissionregistration.k8s.io/v1
 
@@ -21,17 +20,12 @@ kubectl delete configmap ca-bundles -n $NAMESPACE
 kubectl create configmap --from-file=ca-certificates.crt,cacerts ca-bundles -n $NAMESPACE
 
 kubectl create namespace cloudbees-sidecar-injector
-
 helm repo update
 helm upgrade -i cloudbees-sidecar-injector cloudbees/cloudbees-sidecar-injector --namespace cloudbees-sidecar-injector
-
 kubectl --namespace cloudbees-sidecar-injector get all
 
-
 kubectl label namespace $NAMESPACE sidecar-injector=enabled
-
 kubectl get namespace -L sidecar-injector
-#kubectl apply -f testpod.yaml -n $NAMESPACE
 
 kubectl -n $NAMESPACE apply -f  - <<EOF
 apiVersion: v1
